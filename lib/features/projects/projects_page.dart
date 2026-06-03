@@ -164,6 +164,38 @@ class ProjectCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  bool get hasLyrics => project.lyrics.trim().isNotEmpty;
+
+  bool get hasBeat =>
+      project.beatGenre.trim().isNotEmpty ||
+      project.beatBpm.trim().isNotEmpty ||
+      project.beatMood.trim().isNotEmpty ||
+      project.beatInstruments.trim().isNotEmpty;
+
+  bool get hasRecording =>
+      project.recordingName.trim().isNotEmpty ||
+      project.recordingDuration.trim().isNotEmpty ||
+      project.recordingStatus.trim().isNotEmpty ||
+      project.recordingNotes.trim().isNotEmpty;
+
+  bool get hasMix =>
+      project.mixStatus.trim().isNotEmpty ||
+      project.mixMastering.trim().isNotEmpty ||
+      project.mixNotes.trim().isNotEmpty;
+
+  double get progress {
+    int done = 0;
+
+    if (hasLyrics) done++;
+    if (hasBeat) done++;
+    if (hasRecording) done++;
+    if (hasMix) done++;
+
+    return done / 4;
+  }
+
+  int get progressPercent => (progress * 100).round();
+
   @override
   Widget build(BuildContext context) {
     final genre = project.genre.isEmpty ? 'Kein Genre' : project.genre;
@@ -171,75 +203,180 @@ class ProjectCard extends StatelessWidget {
 
     return GlassCard(
       onTap: onTap,
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.gold.withOpacity(0.16),
-              border: Border.all(
-                color: AppColors.gold.withOpacity(0.45),
+          Row(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.gold.withOpacity(0.16),
+                  border: Border.all(
+                    color: AppColors.gold.withOpacity(0.45),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.gold.withOpacity(0.22),
+                      blurRadius: 22,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.graphic_eq_rounded,
+                  color: AppColors.gold,
+                  size: 30,
+                ),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.gold.withOpacity(0.22),
-                  blurRadius: 22,
+
+              const SizedBox(width: 18),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      project.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      genre,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      mood,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.silver,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: const Icon(
-              Icons.graphic_eq_rounded,
+              ),
+
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.silver,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: Colors.white10,
               color: AppColors.gold,
-              size: 30,
             ),
           ),
 
-          const SizedBox(width: 18),
+          const SizedBox(height: 8),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  project.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  genre,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  mood,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.silver,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+          Text(
+            '$progressPercent % abgeschlossen',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
             ),
           ),
 
-          IconButton(
-            onPressed: onDelete,
-            icon: const Icon(
-              Icons.delete_outline_rounded,
-              color: AppColors.silver,
+          const SizedBox(height: 14),
+
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              StatusChip(
+                label: 'Songwriter',
+                completed: hasLyrics,
+              ),
+              StatusChip(
+                label: 'Beats',
+                completed: hasBeat,
+              ),
+              StatusChip(
+                label: 'Aufnahme',
+                completed: hasRecording,
+              ),
+              StatusChip(
+                label: 'Mixing',
+                completed: hasMix,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StatusChip extends StatelessWidget {
+  final String label;
+  final bool completed;
+
+  const StatusChip({
+    super.key,
+    required this.label,
+    required this.completed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 11,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        color: completed
+            ? AppColors.gold.withOpacity(0.18)
+            : Colors.black.withOpacity(0.26),
+        border: Border.all(
+          color: completed
+              ? AppColors.gold.withOpacity(0.55)
+              : AppColors.silver.withOpacity(0.18),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            completed
+                ? Icons.check_circle_rounded
+                : Icons.radio_button_unchecked_rounded,
+            size: 15,
+            color: completed ? AppColors.gold : AppColors.textSecondary,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: completed ? AppColors.gold : AppColors.textSecondary,
             ),
           ),
         ],
