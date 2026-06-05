@@ -21,7 +21,10 @@ class _SongwriterPageState extends State<SongwriterPage> {
   final titleController = TextEditingController();
   final genreController = TextEditingController();
   final moodController = TextEditingController();
+  final languageController = TextEditingController();
+  final bpmController = TextEditingController();
   final keywordsController = TextEditingController();
+  final ideasController = TextEditingController();
   final lyricsController = TextEditingController();
 
   @override
@@ -34,6 +37,7 @@ class _SongwriterPageState extends State<SongwriterPage> {
       titleController.text = project.title;
       genreController.text = project.genre;
       moodController.text = project.mood;
+      bpmController.text = project.beatBpm;
       lyricsController.text = project.lyrics;
     }
   }
@@ -43,7 +47,10 @@ class _SongwriterPageState extends State<SongwriterPage> {
     titleController.dispose();
     genreController.dispose();
     moodController.dispose();
+    languageController.dispose();
+    bpmController.dispose();
     keywordsController.dispose();
+    ideasController.dispose();
     lyricsController.dispose();
     super.dispose();
   }
@@ -53,52 +60,99 @@ class _SongwriterPageState extends State<SongwriterPage> {
         ? 'Midnight Song'
         : titleController.text.trim();
 
+    final genre = genreController.text.trim().isEmpty
+        ? 'Pop'
+        : genreController.text.trim();
+
     final mood = moodController.text.trim().isEmpty
         ? 'dunkel und emotional'
         : moodController.text.trim();
+
+    final language = languageController.text.trim().isEmpty
+        ? 'Deutsch'
+        : languageController.text.trim();
+
+    final bpm = bpmController.text.trim().isEmpty
+        ? '92'
+        : bpmController.text.trim();
 
     final keywords = keywordsController.text.trim().isEmpty
         ? 'Nacht, Licht, Herz'
         : keywordsController.text.trim();
 
+    final ideas = ideasController.text.trim().isEmpty
+        ? 'Melancholischer Beat, eingängiger Refrain, cineastische Atmosphäre'
+        : ideasController.text.trim();
+
     setState(() {
       lyricsController.text =
-          'Titel: $title\n\n'
+          'Titel: $title\n'
+          'Genre: $genre\n'
+          'Stimmung: $mood\n'
+          'Sprache: $language\n'
+          'BPM: $bpm\n'
+          'Schlagwörter: $keywords\n'
+          'Songwriting-Ideen: $ideas\n\n'
           'Verse 1:\n'
-          'Ich lauf durch die Nacht, $mood im Blick,\n'
-          'aus alten Gedanken entsteht neues Glück.\n'
-          'Zwischen $keywords such ich meinen Klang,\n'
-          'und jede Zeile zieht mich weiter voran.\n\n'
-          'Hook:\n'
-          '$title, ich dreh die Welt laut,\n'
-          'bau mir aus Träumen einen Sound aus Gold und Haut.\n'
-          '$title, die Nacht wird mein Licht,\n'
-          'Midnight Studio, und der Beat vergisst mich nicht.';
+          'Im Schatten der Laternen, die Stadt schläft noch nicht,\n'
+          'dein Echo im Kopf, ein Gefühl, das mich bricht.\n'
+          'Zwischen Neon und Sehnsucht such ich mein Licht,\n'
+          'und jeder Atemzug bleibt ein Versprechen an dich.\n\n'
+          'Pre-Chorus:\n'
+          'Die Melodie zieht uns leise in den Morgen,\n'
+          'wir tragen den Moment, lassen Sorgen verborgen.\n\n'
+          'Chorus:\n'
+          'Denn wir sind das Licht in der Nacht,\n'
+          '$title nimmt uns mit auf die Fahrt.\n'
+          'Herz schlägt im Takt, $bpm BPM,\n'
+          'Gefühle so klar wie ein endloser Hymnen-Refrain.\n\n'
+          'Verse 2:\n'
+          'Die Worte wie Sterne, der Beat wie ein Meer,\n'
+          'in deinem Blick liegt das Versprechen von mehr.\n'
+          'Wir schreiben Geschichte, so nah und so klar,\n'
+          'und jedes Motiv wird zur Melodie, die ich wahr.\n\n'
+          'Bridge:\n'
+          'Hier in der Stille zwischen den Takten,\n'
+          'wird aus Erinnerung ein neuer Klang erwacht.\n'
+          'Wir halten das Jetzt, lassen die Zeit sich verlieren,\n'
+          'und die Nacht wird zum Lied, das uns nie verliert.\n';
     });
   }
 
   Future<void> saveSongwriterData() async {
+    final title = titleController.text.trim().isEmpty
+        ? 'Unbenannter Track'
+        : titleController.text.trim();
+    final genre = genreController.text.trim();
+    final mood = moodController.text.trim();
+    final bpm = bpmController.text.trim();
+    final lyrics = lyricsController.text.trim();
+
     final currentProject = widget.project;
 
     if (currentProject == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Kein Projekt ausgewählt.'),
-        ),
+      final newProject = MusicProject(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        genre: genre,
+        mood: mood,
+        lyrics: lyrics,
+        beatBpm: bpm,
+        createdAt: DateTime.now(),
       );
-      return;
+
+      await ProjectController.addProject(newProject);
+    } else {
+      final updatedProject = currentProject.copyWith(
+        title: title,
+        genre: genre,
+        mood: mood,
+        lyrics: lyrics,
+        beatBpm: bpm,
+      );
+
+      await ProjectController.updateProject(updatedProject);
     }
-
-    final updatedProject = currentProject.copyWith(
-      title: titleController.text.trim().isEmpty
-          ? 'Unbenannter Track'
-          : titleController.text.trim(),
-      genre: genreController.text.trim(),
-      mood: moodController.text.trim(),
-      lyrics: lyricsController.text.trim(),
-    );
-
-    await ProjectController.updateProject(updatedProject);
 
     if (!mounted) return;
 
@@ -178,9 +232,27 @@ class _SongwriterPageState extends State<SongwriterPage> {
                       ),
                       const SizedBox(height: 16),
                       _InputField(
+                        label: 'Sprache',
+                        hint: 'Deutsch, Englisch, Spanisch',
+                        controller: languageController,
+                      ),
+                      const SizedBox(height: 16),
+                      _InputField(
+                        label: 'BPM',
+                        hint: 'z. B. 92',
+                        controller: bpmController,
+                      ),
+                      const SizedBox(height: 16),
+                      _InputField(
                         label: 'Schlagwörter',
                         hint: 'Nacht, Herz, Straße, Erinnerung',
                         controller: keywordsController,
+                      ),
+                      const SizedBox(height: 16),
+                      _InputField(
+                        label: 'Songwriting-Ideen',
+                        hint: 'z. B. Melancholisch, cineastisch, hookig',
+                        controller: ideasController,
                       ),
                     ],
                   ),
@@ -264,7 +336,7 @@ class _SongwriterPageState extends State<SongwriterPage> {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: hasProject ? saveSongwriterData : null,
+                        onPressed: saveSongwriterData,
                         icon: const Icon(Icons.save_rounded),
                         label: const Text('Im Projekt speichern'),
                         style: OutlinedButton.styleFrom(

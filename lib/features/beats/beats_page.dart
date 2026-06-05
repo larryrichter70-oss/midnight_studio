@@ -47,25 +47,35 @@ class _BeatsPageState extends State<BeatsPage> {
   }
 
   Future<void> saveBeatData() async {
+    final genre = beatGenreController.text.trim();
+    final bpm = beatBpmController.text.trim();
+    final mood = beatMoodController.text.trim();
+    final instruments = beatInstrumentsController.text.trim();
+
     final currentProject = widget.project;
 
     if (currentProject == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Kein Projekt ausgewählt.'),
-        ),
+      final newProject = MusicProject(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: 'Unbenannter Beat Track',
+        beatGenre: genre,
+        beatBpm: bpm,
+        beatMood: mood,
+        beatInstruments: instruments,
+        createdAt: DateTime.now(),
       );
-      return;
+
+      await ProjectController.addProject(newProject);
+    } else {
+      final updatedProject = currentProject.copyWith(
+        beatGenre: genre,
+        beatBpm: bpm,
+        beatMood: mood,
+        beatInstruments: instruments,
+      );
+
+      await ProjectController.updateProject(updatedProject);
     }
-
-    final updatedProject = currentProject.copyWith(
-      beatGenre: beatGenreController.text.trim(),
-      beatBpm: beatBpmController.text.trim(),
-      beatMood: beatMoodController.text.trim(),
-      beatInstruments: beatInstrumentsController.text.trim(),
-    );
-
-    await ProjectController.updateProject(updatedProject);
 
     if (!mounted) return;
 
@@ -172,7 +182,7 @@ class _BeatsPageState extends State<BeatsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: hasProject ? saveBeatData : null,
+                    onPressed: saveBeatData,
                     icon: const Icon(Icons.save_rounded),
                     label: const Text('Beat im Projekt speichern'),
                     style: ElevatedButton.styleFrom(
