@@ -83,18 +83,14 @@ class _Sidebar extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.gold, AppColors.neonPurple],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/images/ms_logo.png',
+                    width: 140,
+                    height: 140,
+                    fit: BoxFit.contain,
                   ),
-                  child: const Icon(Icons.graphic_eq_rounded, color: AppColors.background, size: 32),
                 ),
                 const SizedBox(height: 14),
                 const Text(
@@ -244,7 +240,15 @@ class _StudioWorkspace extends StatelessWidget {
                   fit: FlexFit.loose,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.midnightBlue,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF0E1324),
+                          Color(0xFF121A35),
+                          Color(0xFF17132D),
+                        ],
+                      ),
                       borderRadius: BorderRadius.circular(26),
                     ),
                     padding: const EdgeInsets.all(20),
@@ -276,37 +280,28 @@ class _StudioWorkspace extends StatelessWidget {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: AppColors.background,
                               borderRadius: BorderRadius.circular(22),
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF07111F),
+                                  Color(0xFF10172F),
+                                  Color(0xFF17102A),
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xFF7A6CFF).withAlpha(70),
+                                  blurRadius: 34,
+                                  spreadRadius: 2,
+                                ),
+                              ],
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: List.generate(48, (index) {
-                                final height = 32.0 + (index % 9) * 10.0 + (index.isEven ? 10.0 : 0.0);
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Container(
-                                        height: height,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(999),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColors.neonPurple.withAlpha(220),
-                                              AppColors.gold.withAlpha(200),
-                                            ],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
+                            padding: const EdgeInsets.all(18),
+                            child: CustomPaint(
+                              painter: _RealisticWaveformPainter(),
+                              size: Size.infinite,
                             ),
                           ),
                         ),
@@ -346,180 +341,143 @@ class _ProjectListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.midnightBlue,
-        borderRadius: BorderRadius.circular(26),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Trackliste',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
+    // "Letzte Projekte" Bereich unter der großen Waveform
+    final demoProjects = [
+      {'title': 'Night Pulse', 'genreBpm': 'Dark Pop · 92 BPM', 'duration': '3:42'},
+      {'title': 'Neon Lights', 'genreBpm': 'Synthwave · 110 BPM', 'duration': '4:10'},
+      {'title': 'Lost In Space', 'genreBpm': 'Ambient · 78 BPM', 'duration': '5:01'},
+      {'title': 'Eternal Night', 'genreBpm': 'Dark Pop · 96 BPM', 'duration': '3:58'},
+    ];
+
+    // Use a ListView to avoid vertical overflow and allow scrolling
+    return ListView.separated(
+      padding: const EdgeInsets.only(top: 4),
+      itemCount: demoProjects.length + 1, // header + items
+      separatorBuilder: (context, index) {
+        if (index == 0) return const SizedBox.shrink();
+        return const Divider(color: Colors.white10, height: 1);
+      },
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'Letzte Projekte',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
             ),
+          );
+        }
+
+        final p = demoProjects[index - 1];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+          child: Column(
+            children: [
+              _RecentProjectRow(
+                title: p['title']!,
+                genreBpm: p['genreBpm']!,
+                duration: p['duration']!,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              itemCount: projects.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                return _TrackRow(project: projects[index]);
-              },
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-class _TrackRow extends StatelessWidget {
-  final MusicProject project;
+class _RecentProjectRow extends StatelessWidget {
+  final String title;
+  final String genreBpm;
+  final String duration;
 
-  const _TrackRow({required this.project});
+  const _RecentProjectRow({required this.title, required this.genreBpm, required this.duration});
 
   @override
   Widget build(BuildContext context) {
-    final progress = _projectProgress(project);
-    return Container(
-      height: 130,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.midnightBlue,
-        borderRadius: BorderRadius.circular(24),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
+          // kleines Cover
           Container(
-            width: 56,
-            height: 56,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.deepPurple, AppColors.neonPurple],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.music_note_rounded, color: AppColors.gold, size: 28),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
+          // Titel + Genre/BPM
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  project.title.isNotEmpty ? project.title : 'Untitled Track',
+                  title,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
-                  project.genre.isNotEmpty
-                      ? '${project.genre} · ${project.mood.isNotEmpty ? project.mood : 'Unbekannt'}'
-                      : 'Night Pulse · Demo Track',
+                  genreBpm,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text(
-                        project.recordingStatus.isNotEmpty ? project.recordingStatus : 'Ready',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 6,
-                          backgroundColor: Colors.white10,
-                          valueColor: const AlwaysStoppedAnimation(AppColors.gold),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      '${(progress * 100).round()}%',
-                      style: const TextStyle(
-                        color: AppColors.gold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          // kleine Waveform (mini)
           SizedBox(
-            width: 100,
-            height: 98,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: List.generate(
-                        6,
-                        (index) => Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                            height: 8.0 + (index % 3) * 10.0 + (index.isEven ? 6.0 : 0.0),
-                            decoration: BoxDecoration(
-                              color: AppColors.gold.withAlpha(200),
-                              borderRadius: BorderRadius.circular(99),
-                            ),
-                          ),
+            width: 120,
+            height: 36,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(
+                  20,
+                  (i) {
+                    final h = 6.0 + (i % 5) * 4.0;
+                    return Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 1),
+                        height: h,
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Track',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
+              ),
+            ),
+          ),
+          // Dauer
+          SizedBox(
+            width: 56,
+            child: Text(
+              duration,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.right,
             ),
           ),
         ],
@@ -782,6 +740,98 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
+class _RealisticWaveformPainter extends CustomPainter {
+  const _RealisticWaveformPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerY = size.height / 2;
+
+    final glowPaint = Paint()
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(
+        BlurStyle.normal,
+        10,
+      )
+      ..shader = const LinearGradient(
+        colors: [
+          Color(0xFF76F3FF),
+          Color(0xFF786CFF),
+          Color(0xFFFF66E5),
+        ],
+      ).createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      );
+
+    final linePaint = Paint()
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..shader = const LinearGradient(
+        colors: [
+          Color(0xFFBFF6FF),
+          Color(0xFF9A8CFF),
+          Color(0xFFFF8CEF),
+        ],
+      ).createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      );
+
+    final randomHeights = <double>[
+      12,16,18,22,30,42,34,26,18,12,
+      10,18,28,44,58,72,64,48,36,22,
+      14,20,38,62,88,110,92,70,48,32,
+      22,34,58,86,126,148,118,82,54,38,
+      26,42,68,98,138,164,130,96,64,42,
+      28,46,74,112,152,178,142,104,72,48,
+      34,52,80,118,146,128,98,70,52,36,
+      24,38,60,88,118,146,122,92,64,44,
+      28,42,66,94,124,148,118,84,60,42,
+    ];
+
+    final spacing = size.width / randomHeights.length;
+
+    for (int i = 0; i < randomHeights.length; i++) {
+      final x = i * spacing;
+      final h = randomHeights[i];
+
+      canvas.drawLine(
+        Offset(x, centerY - h),
+        Offset(x, centerY + h),
+        glowPaint,
+      );
+
+      canvas.drawLine(
+        Offset(x, centerY - h),
+        Offset(x, centerY + h),
+        linePaint,
+      );
+    }
+
+    final centerPaint = Paint()
+      ..color = Colors.white.withAlpha(25)
+      ..strokeWidth = 1;
+
+    canvas.drawLine(
+      Offset(0, centerY),
+      Offset(size.width, centerY),
+      centerPaint,
+    );
+
+    final playheadPaint = Paint()
+      ..color = const Color(0xFFEAF9FF)
+      ..strokeWidth = 2;
+
+    canvas.drawLine(
+      Offset(size.width * 0.35, 10),
+      Offset(size.width * 0.35, size.height - 10),
+      playheadPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
 final MusicProject _demoProject = MusicProject(
   id: 'demo-001',
   title: 'Night Pulse',
@@ -801,13 +851,3 @@ final MusicProject _demoProject = MusicProject(
   mixNotes: 'Reverb und EQ anpassen',
   createdAt: DateTime(2025, 1, 1),
 );
-
-double _projectProgress(MusicProject project) {
-  final checks = <bool>[
-    project.lyrics.isNotEmpty,
-    project.beatGenre.isNotEmpty || project.beatBpm.isNotEmpty || project.beatInstruments.isNotEmpty,
-    project.recordingName.isNotEmpty || project.recordingStatus.isNotEmpty,
-    project.mixStatus.isNotEmpty || project.mixMastering.isNotEmpty,
-  ];
-  return checks.where((value) => value).length / checks.length;
-}
