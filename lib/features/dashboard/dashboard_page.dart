@@ -177,6 +177,14 @@ class _StudioWorkspace extends StatelessWidget {
         final activeProject = projects.isNotEmpty ? projects.first : _demoProject;
         final projectItems = projects.isNotEmpty ? projects : [_demoProject];
 
+        final activeProjectTitle = activeProject.title.isNotEmpty ? activeProject.title : 'Untitled Projekt';
+        final activeProjectMood = activeProject.mood.isNotEmpty ? activeProject.mood : 'Demo Track';
+        final activeProjectGenre = activeProject.genre.isNotEmpty ? activeProject.genre : '';
+        final activeProjectGenreMood = activeProjectGenre.isNotEmpty
+            ? '$activeProjectGenre · $activeProjectMood'
+            : activeProjectMood;
+        final activeProjectTempo = activeProject.beatBpm.isNotEmpty ? '${activeProject.beatBpm} BPM' : '92 BPM';
+
         return Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
@@ -196,7 +204,7 @@ class _StudioWorkspace extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            activeProject.title,
+                            activeProjectTitle,
                             style: const TextStyle(
                               color: AppColors.gold,
                               fontSize: 32,
@@ -205,7 +213,7 @@ class _StudioWorkspace extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '${activeProject.genre.isNotEmpty ? '${activeProject.genre} · ' : ''}${activeProject.mood}',
+                            activeProjectGenreMood,
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
@@ -232,8 +240,8 @@ class _StudioWorkspace extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 // GROSSE WAVEFORM - das zentrale Element (50% der verfügbaren Höhe)
-                Expanded(
-                  flex: 5,
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColors.midnightBlue,
@@ -306,7 +314,7 @@ class _StudioWorkspace extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _MiniInfo(label: 'Tempo', value: activeProject.beatBpm.isNotEmpty ? '${activeProject.beatBpm} BPM' : '92 BPM'),
+                            _MiniInfo(label: 'Tempo', value: activeProjectTempo),
                             _MiniInfo(label: 'Tracks', value: '08'),
                             _MiniInfo(label: 'Status', value: activeProject.recordingStatus.isNotEmpty ? activeProject.recordingStatus : 'Ready'),
                           ],
@@ -317,8 +325,8 @@ class _StudioWorkspace extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 // Trackliste darunter (50% der verfügbaren Höhe)
-                Expanded(
-                  flex: 5,
+                Flexible(
+                  fit: FlexFit.loose,
                   child: _ProjectListView(projects: projectItems),
                 ),
               ],
@@ -410,7 +418,7 @@ class _TrackRow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  project.title,
+                  project.title.isNotEmpty ? project.title : 'Untitled Track',
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
@@ -419,7 +427,9 @@ class _TrackRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  project.genre.isNotEmpty ? '${project.genre} · ${project.mood}' : 'Night Pulse · Demo Track',
+                  project.genre.isNotEmpty
+                      ? '${project.genre} · ${project.mood.isNotEmpty ? project.mood : 'Unbekannt'}'
+                      : 'Night Pulse · Demo Track',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -444,13 +454,15 @@ class _TrackRow extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 6,
-                        backgroundColor: Colors.white10,
-                        valueColor: const AlwaysStoppedAnimation(AppColors.gold),
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6,
+                          backgroundColor: Colors.white10,
+                          valueColor: const AlwaysStoppedAnimation(AppColors.gold),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
