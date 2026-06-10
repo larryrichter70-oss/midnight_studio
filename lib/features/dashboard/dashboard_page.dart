@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../core/controllers/project_controller.dart';
@@ -8,74 +9,113 @@ class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topCenter,
-            radius: 1.3,
-            colors: [
-              AppColors.deepPurple,
-              AppColors.midnightBlue,
-              AppColors.background,
-            ],
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.black,
+    body: Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF020203),
+            Color(0xFF050812),
+            Color(0xFF07040D),
+            Color(0xFF000000),
+          ],
         ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 900;
-              return Padding(
+      ),
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 900;
+
+            if (!isWide) {
+              return SingleChildScrollView(
                 padding: const EdgeInsets.all(18),
-                child: isWide
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: const [
-                          SizedBox(width: 260, child: _Sidebar()),
-                          SizedBox(width: 18),
-                          Expanded(child: _StudioWorkspace(isWide: true)),
-                          SizedBox(width: 18),
-                          SizedBox(width: 320, child: _RightPanel()),
-                        ],
-                      )
-                    : SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: const [
-                              _Sidebar(),
-                              SizedBox(height: 18),
-                              _StudioWorkspace(isWide: false),
-                              SizedBox(height: 18),
-                              _RightPanel(),
-                            ],
-                          ),
-                        ),
-                      ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: constraints.maxWidth,
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Sidebar(),
+                      SizedBox(height: 18),
+                      _StudioWorkspace(isWide: false),
+                      SizedBox(height: 18),
+                      _RightPanel(),
+                    ],
+                  ),
+                ),
               );
-            },
-          ),
+            }
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 26,
+                vertical: 22,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  SizedBox(
+                    width: 260,
+                    child: _Sidebar(),
+                  ),
+                  _FadingDivider(),
+                  Expanded(
+                    child: _StudioWorkspace(isWide: true),
+                  ),
+                  _FadingDivider(),
+                  SizedBox(
+                    width: 320,
+                    child: _RightPanel(),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    ),
+  );
+}
+}
+
+class _FadingDivider extends StatelessWidget {
+  const _FadingDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            const Color(0xFFC9C9D6).withAlpha(35),
+            const Color(0xFFE8E8F2).withAlpha(80),
+            const Color(0xFFC9C9D6).withAlpha(35),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.22, 0.5, 0.78, 1.0],
         ),
       ),
     );
   }
 }
-
 class _Sidebar extends StatelessWidget {
   const _Sidebar();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+    return Padding(
+  padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,14 +133,9 @@ class _Sidebar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text(
+                const _GoldMetalText(
                   'MIDNIGHT',
-                  style: TextStyle(
-                    color: AppColors.gold,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
-                  ),
+                  fontSize: 22,
                 ),
                 const Text(
                   'Studio',
@@ -125,7 +160,7 @@ class _Sidebar extends StatelessWidget {
       ),
     );
   }
-}
+  }
 
 class _NavItem extends StatelessWidget {
   final IconData icon;
@@ -181,13 +216,8 @@ class _StudioWorkspace extends StatelessWidget {
             : activeProjectMood;
         final activeProjectTempo = activeProject.beatBpm.isNotEmpty ? '${activeProject.beatBpm} BPM' : '92 BPM';
 
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+       return Padding(
+         padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -199,13 +229,9 @@ class _StudioWorkspace extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          _GoldMetalText(
                             activeProjectTitle,
-                            style: const TextStyle(
-                              color: AppColors.gold,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            fontSize: 32,
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -239,65 +265,12 @@ class _StudioWorkspace extends StatelessWidget {
                 Flexible(
                   fit: FlexFit.loose,
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF0E1324),
-                          Color(0xFF121A35),
-                          Color(0xFF17132D),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(26),
-                    ),
-                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
-                              'Waveform',
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 12,
-                                letterSpacing: 1.6,
-                              ),
-                            ),
-                            Text(
-                              'Arrangement',
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 12,
-                                letterSpacing: 1.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
                         Expanded(
                           child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(22),
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF07111F),
-                                  Color(0xFF10172F),
-                                  Color(0xFF17102A),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0xFF7A6CFF).withAlpha(70),
-                                  blurRadius: 34,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
+                            color: Colors.transparent,    
                             padding: const EdgeInsets.all(18),
                             child: CustomPaint(
                               painter: _RealisticWaveformPainter(),
@@ -320,15 +293,13 @@ class _StudioWorkspace extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 // Trackliste darunter (50% der verfügbaren Höhe)
-                Flexible(
+                                Flexible(
                   fit: FlexFit.loose,
                   child: _ProjectListView(projects: projectItems),
                 ),
               ],
             ),
-          ),
-        );
-
+          );
       },
     );
   }
@@ -492,11 +463,7 @@ class _RightPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(28),
-      ),
+    return Padding(
       padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
         child: Column(
@@ -748,89 +715,162 @@ class _RealisticWaveformPainter extends CustomPainter {
     final centerY = size.height / 2;
 
     final glowPaint = Paint()
-      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 18
       ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(
-        BlurStyle.normal,
-        10,
-      )
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18)
       ..shader = const LinearGradient(
         colors: [
-          Color(0xFF76F3FF),
-          Color(0xFF786CFF),
-          Color(0xFFFF66E5),
+          Color(0xFF63E7FF),
+          Color(0xFFC9D6E8),
+          Color(0xFF8C6DFF),
+          Color(0xFFFF65D8),
         ],
-      ).createShader(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-      );
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    final linePaint = Paint()
-      ..strokeWidth = 1.8
+    final mainPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.5
       ..strokeCap = StrokeCap.round
       ..shader = const LinearGradient(
         colors: [
-          Color(0xFFBFF6FF),
-          Color(0xFF9A8CFF),
-          Color(0xFFFF8CEF),
+          Color(0xFF9FF4FF),
+          Color(0xFFE8EDF7),
+          Color(0xFF8A78FF),
+          Color(0xFFFF7CE6),
         ],
-      ).createShader(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-      );
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    final randomHeights = <double>[
-      12,16,18,22,30,42,34,26,18,12,
-      10,18,28,44,58,72,64,48,36,22,
-      14,20,38,62,88,110,92,70,48,32,
-      22,34,58,86,126,148,118,82,54,38,
-      26,42,68,98,138,164,130,96,64,42,
-      28,46,74,112,152,178,142,104,72,48,
-      34,52,80,118,146,128,98,70,52,36,
-      24,38,60,88,118,146,122,92,64,44,
-      28,42,66,94,124,148,118,84,60,42,
-    ];
+    final thinPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xFFE8EDF7).withAlpha(120);
 
-    final spacing = size.width / randomHeights.length;
+    Path wave(double amplitude, double offset, double frequency) {
+      final path = Path();
+      for (double x = 0; x <= size.width; x += 8) {
+        final progress = x / size.width;
+        final envelope =
+            (0.35 + 0.65 * (1 - (progress - 0.5).abs() * 1.55)).clamp(0.2, 1.0);
 
-    for (int i = 0; i < randomHeights.length; i++) {
-      final x = i * spacing;
-      final h = randomHeights[i];
+        final y = centerY +
+            offset +
+            amplitude *
+                envelope *
+                (
+                  0.65 * math.sin(progress * math.pi * frequency) +
+                  0.35 * math.sin(progress * math.pi * frequency * 2.4)
+                );
 
-      canvas.drawLine(
-        Offset(x, centerY - h),
-        Offset(x, centerY + h),
-        glowPaint,
-      );
-
-      canvas.drawLine(
-        Offset(x, centerY - h),
-        Offset(x, centerY + h),
-        linePaint,
-      );
+        if (x == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+      return path;
     }
 
-    final centerPaint = Paint()
-      ..color = Colors.white.withAlpha(25)
+    final mainWave = wave(size.height * 0.22, 0, 7.2);
+    final upperWave = wave(size.height * 0.13, -size.height * 0.12, 6.4);
+    final lowerWave = wave(size.height * 0.13, size.height * 0.12, 6.4);
+
+    canvas.drawPath(mainWave, glowPaint);
+    canvas.drawPath(upperWave, glowPaint);
+    canvas.drawPath(lowerWave, glowPaint);
+
+    canvas.drawPath(mainWave, mainPaint);
+    canvas.drawPath(upperWave, thinPaint);
+    canvas.drawPath(lowerWave, thinPaint);
+
+    final silverLine = Paint()
+      ..color = const Color(0xFFE8EDF7).withAlpha(45)
       ..strokeWidth = 1;
 
     canvas.drawLine(
       Offset(0, centerY),
       Offset(size.width, centerY),
-      centerPaint,
-    );
-
-    final playheadPaint = Paint()
-      ..color = const Color(0xFFEAF9FF)
-      ..strokeWidth = 2;
-
-    canvas.drawLine(
-      Offset(size.width * 0.35, 10),
-      Offset(size.width * 0.35, size.height - 10),
-      playheadPaint,
+      silverLine,
     );
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _GoldMetalText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+
+  const _GoldMetalText(
+    this.text, {
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.4,
+            color: const Color(0xFF3A2105),
+            shadows: const [
+              Shadow(
+                color: Color(0xCC000000),
+                blurRadius: 10,
+                offset: Offset(3, 4),
+              ),
+            ],
+          ),
+        ),
+        Transform.translate(
+          offset: const Offset(-1.4, -1.4),
+          child: ShaderMask(
+            shaderCallback: (bounds) {
+              return const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFFFFFFF),
+                  Color(0xFFFFF2B6),
+                  Color(0xFFFFC64B),
+                  Color(0xFF8C4F09),
+                  Color(0xFFE8EDF7),
+                ],
+                stops: [0.0, 0.18, 0.45, 0.72, 1.0],
+              ).createShader(bounds);
+            },
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: fontSize,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.4,
+                shadows: const [
+                  Shadow(
+                    color: Color(0xBBFFB000),
+                    blurRadius: 18,
+                    offset: Offset(0, 0),
+                  ),
+                  Shadow(
+                    color: Color(0x88FFFFFF),
+                    blurRadius: 5,
+                    offset: Offset(-1, -1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 final MusicProject _demoProject = MusicProject(
   id: 'demo-001',
