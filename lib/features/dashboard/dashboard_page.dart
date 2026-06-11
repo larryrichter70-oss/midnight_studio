@@ -132,17 +132,33 @@ class _Sidebar extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 18),
+
                 const _GoldMetalText(
                   'MIDNIGHT',
-                  fontSize: 22,
+                  fontSize: 24,
                 ),
-                const Text(
-                  'Studio',
+
+                SizedBox(height: 4),
+
+                Text(
+                  'STUDIO',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                    letterSpacing: 1.2,
+                    color: Color(0xFFE8EDF7),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 4,
+                  ),
+                ),
+
+                SizedBox(height: 10),
+
+                Text(
+                  'Creative Music Production',
+                  style: TextStyle(
+                    color: Color(0xFF9EA8C8),
+                    fontSize: 11,
+                    letterSpacing: 1.3,
                   ),
                 ),
               ],
@@ -176,17 +192,58 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 18),
       child: Row(
         children: [
-          Icon(icon, size: 22, color: isActive ? AppColors.gold : AppColors.textSecondary),
+          Container(
+            width: 4,
+            height: 28,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [
+                        Color(0xFF63E7FF),
+                        Color(0xFF8A78FF),
+                        Color(0xFFFF7CE6),
+                      ],
+                    )
+                  : null,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Icon(
+            icon,
+            size: 22,
+            color: isActive
+                ? const Color(0xFFE8EDF7)
+                : const Color(0xFF7E86A8),
+          ),
+
           const SizedBox(width: 14),
-          Text(
-            label,
-            style: TextStyle(
-              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
-              fontSize: 15,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isActive
+                    ? const Color(0xFFE8EDF7)
+                    : const Color(0xFF9EA8C8),
+                fontSize: 15,
+                fontWeight:
+                    isActive ? FontWeight.w700 : FontWeight.w500,
+                letterSpacing: 0.8,
+                shadows: isActive
+                    ? const [
+                        Shadow(
+                          color: Color(0x668A78FF),
+                          blurRadius: 10,
+                        ),
+                      ]
+                    : null,
+              ),
             ),
           ),
         ],
@@ -469,13 +526,9 @@ class _RightPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            const _SilverMetalText(
               'Recent Clips',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              fontSize: 18,
             ),
             const SizedBox(height: 14),
             const _RecentCard(
@@ -499,13 +552,9 @@ class _RightPanel extends StatelessWidget {
               timestamp: 'vor 1 Std.',
             ),
             const SizedBox(height: 24),
-            const Text(
+            const _SilverMetalText(
               'Quick Actions',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              fontSize: 16,
             ),
             const SizedBox(height: 14),
             _QuickActionButton(icon: Icons.mic_none_rounded, label: 'Aufnehmen'),
@@ -869,6 +918,54 @@ class _GoldMetalText extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SilverMetalText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+
+  const _SilverMetalText(
+    this.text, {
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) {
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFFFF),
+            Color(0xFFD9E5FF),
+            Color(0xFFB8C4E8),
+            Color(0xFF8A78FF),
+          ],
+        ).createShader(bounds);
+      },
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+          shadows: const [
+            Shadow(
+              color: Color(0x668A78FF),
+              blurRadius: 12,
+            ),
+            Shadow(
+              color: Color(0x33FFFFFF),
+              blurRadius: 4,
+              offset: Offset(-1, -1),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
