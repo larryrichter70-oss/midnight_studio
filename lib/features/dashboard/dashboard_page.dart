@@ -192,60 +192,23 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
         children: [
-          Container(
-            width: 4,
-            height: 28,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: isActive
-                  ? const LinearGradient(
-                      colors: [
-                        Color(0xFF63E7FF),
-                        Color(0xFF8A78FF),
-                        Color(0xFFFF7CE6),
-                      ],
-                    )
-                  : null,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Icon(
-            icon,
-            size: 22,
-            color: isActive
-                ? const Color(0xFFE8EDF7)
-                : const Color(0xFF7E86A8),
-          ),
-
+          _LogoStyleIcon(icon: icon),
           const SizedBox(width: 14),
-
           Expanded(
-            child: Text(
+            child: _SilverMetalText(
               label,
-              style: TextStyle(
-                color: isActive
-                    ? const Color(0xFFE8EDF7)
-                    : const Color(0xFF9EA8C8),
-                fontSize: 15,
-                fontWeight:
-                    isActive ? FontWeight.w700 : FontWeight.w500,
-                letterSpacing: 0.8,
-                shadows: isActive
-                    ? const [
-                        Shadow(
-                          color: Color(0x668A78FF),
-                          blurRadius: 10,
-                        ),
-                      ]
-                    : null,
-              ),
+              fontSize: 14,
             ),
           ),
+          if (isActive)
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 12,
+              color: Color(0xFF7E86A8),
+            ),
         ],
       ),
     );
@@ -423,89 +386,50 @@ class _RecentProjectRow extends StatelessWidget {
   final String genreBpm;
   final String duration;
 
-  const _RecentProjectRow({required this.title, required this.genreBpm, required this.duration});
+  const _RecentProjectRow({
+    required this.title,
+    required this.genreBpm,
+    required this.duration,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          // kleines Cover
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.deepPurple, AppColors.neonPurple],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Titel + Genre/BPM
+          const _LogoStyleIcon(icon: Icons.music_note_rounded),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                _SilverMetalText(title, fontSize: 13),
                 const SizedBox(height: 4),
                 Text(
                   genreBpm,
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
+                    color: Color(0xFF9EA8C8),
                     fontSize: 12,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
             ),
           ),
-          // kleine Waveform (mini)
           SizedBox(
-            width: 120,
-            height: 36,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: List.generate(
-                  20,
-                  (i) {
-                    final h = 6.0 + (i % 5) * 4.0;
-                    return Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 1),
-                        height: h,
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+            width: 90,
+            height: 28,
+            child: CustomPaint(
+              painter: _MiniLogoWavePainter(),
             ),
           ),
-          // Dauer
-          SizedBox(
-            width: 56,
-            child: Text(
-              duration,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 12,
-              ),
-              textAlign: TextAlign.right,
+          const SizedBox(width: 12),
+          Text(
+            duration,
+            style: const TextStyle(
+              color: Color(0xFF7E86A8),
+              fontSize: 12,
             ),
           ),
         ],
@@ -513,7 +437,47 @@ class _RecentProjectRow extends StatelessWidget {
     );
   }
 }
+class _MiniLogoWavePainter extends CustomPainter {
+  const _MiniLogoWavePainter();
 
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerY = size.height / 2;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..strokeCap = StrokeCap.round
+      ..shader = const LinearGradient(
+        colors: [
+          Color(0xFF63E7FF),
+          Color(0xFFE8EDF7),
+          Color(0xFF8A78FF),
+          Color(0xFFFF7CE6),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final path = Path();
+
+    for (double x = 0; x <= size.width; x += 6) {
+      final p = x / size.width;
+      final y = centerY +
+          math.sin(p * math.pi * 7) * size.height * 0.25 +
+          math.sin(p * math.pi * 15) * size.height * 0.08;
+
+      if (x == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
 
 class _RightPanel extends StatelessWidget {
   const _RightPanel();
@@ -584,41 +548,24 @@ class _RecentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.midnightBlue,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.deepPurple,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(icon, color: AppColors.gold, size: 22),
-          ),
+          _LogoStyleIcon(icon: icon),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                _SilverMetalText(title, fontSize: 13),
                 const SizedBox(height: 4),
                 Text(
                   description,
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
+                    color: Color(0xFF9EA8C8),
                     fontSize: 12,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
@@ -627,12 +574,60 @@ class _RecentCard extends StatelessWidget {
           Text(
             timestamp,
             style: const TextStyle(
-              color: AppColors.textSecondary,
+              color: Color(0xFF7E86A8),
               fontSize: 11,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+class _LogoStyleIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _LogoStyleIcon({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF63E7FF).withAlpha(45),
+                blurRadius: 18,
+              ),
+              BoxShadow(
+                color: const Color(0xFFFF7CE6).withAlpha(35),
+                blurRadius: 18,
+              ),
+            ],
+          ),
+        ),
+        ShaderMask(
+          shaderCallback: (bounds) {
+            return const LinearGradient(
+              colors: [
+                Color(0xFF63E7FF),
+                Color(0xFFE8EDF7),
+                Color(0xFF8A78FF),
+                Color(0xFFFF7CE6),
+              ],
+            ).createShader(bounds);
+          },
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -673,26 +668,29 @@ class _QuickActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _QuickActionButton({required this.icon, required this.label});
+  const _QuickActionButton({
+    required this.icon,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.midnightBlue,
-        borderRadius: BorderRadius.circular(18),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.gold, size: 18),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
+          _LogoStyleIcon(icon: icon),
+          const SizedBox(width: 14),
+          Expanded(
+            child: _SilverMetalText(
+              label,
+              fontSize: 13,
             ),
+          ),
+          const Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 12,
+            color: Color(0xFF7E86A8),
           ),
         ],
       ),
