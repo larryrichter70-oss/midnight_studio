@@ -4,6 +4,13 @@ import 'package:flutter/material.dart';
 import '../../core/controllers/project_controller.dart';
 import '../../core/models/music_project.dart';
 import '../../core/theme/app_colors.dart';
+import '../songwriter/songwriter_page.dart';
+import '../beats/beats_page.dart';
+import '../recording/recording_page.dart';
+import '../mixing/mixing_page.dart';
+import '../projects/projects_page.dart';
+import '../export/export_page.dart';
+import '../settings/settings_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -166,17 +173,155 @@ class _Sidebar extends StatelessWidget {
             const SizedBox(height: 26),
             const Divider(color: Colors.white12, height: 1),
             const SizedBox(height: 22),
-            const _NavItem(icon: Icons.dashboard_customize_rounded, label: 'Dashboard', isActive: true),
-            const _NavItem(icon: Icons.mic_rounded, label: 'Studio'),
-            const _NavItem(icon: Icons.folder_open_rounded, label: 'Projekte'),
-            const _NavItem(icon: Icons.upload_file_rounded, label: 'Export'),
-            const _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
+            _StudioDropdown(),
+
+            _SidebarLink(
+              icon: Icons.folder_open_rounded,
+              label: 'Projekte',
+              page: const ProjectsPage(),
+            ),
+
+            _SidebarLink(
+              icon: Icons.upload_file_rounded,
+              label: 'Export',
+              page: const ExportPage(),
+            ),
+
+            _SidebarLink(
+              icon: Icons.settings_rounded,
+              label: 'Settings',
+              page: const SettingsPage(),
+            ),
           ],
         ),
       ),
     );
   }
   }
+  class _StudioDropdown extends StatelessWidget {
+  const _StudioDropdown();
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        dividerColor: Colors.transparent,
+      ),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.only(left: 16, bottom: 8),
+        leading: const _LogoStyleIcon(icon: Icons.mic_rounded),
+        title: const _SilverMetalText('Studio', fontSize: 14),
+        iconColor: const Color(0xFFE8EDF7),
+        collapsedIconColor: const Color(0xFF7E86A8),
+        children: const [
+          _StudioSubLink(
+            label: 'Songwriter',
+            icon: Icons.edit_note_rounded,
+            page: SongwriterPage(),
+          ),
+          _StudioSubLink(
+            label: 'Beats',
+            icon: Icons.graphic_eq_rounded,
+            page: BeatsPage(),
+          ),
+          _StudioSubLink(
+            label: 'Recording',
+            icon: Icons.mic_none_rounded,
+            page: RecordingPage(),
+          ),
+          _StudioSubLink(
+            label: 'Mixing',
+            icon: Icons.tune_rounded,
+            page: MixingPage(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StudioSubLink extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Widget page;
+
+  const _StudioSubLink({
+    required this.label,
+    required this.icon,
+    required this.page,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => page),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: const Color(0xFF9EA8C8)),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFFE8EDF7),
+                fontSize: 13,
+                letterSpacing: 0.6,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarLink extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Widget page;
+
+  const _SidebarLink({
+    required this.icon,
+    required this.label,
+    required this.page,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => page),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        child: Row(
+          children: [
+            _LogoStyleIcon(icon: icon),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _SilverMetalText(label, fontSize: 14),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 12,
+              color: Color(0xFF7E86A8),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _NavItem extends StatelessWidget {
   final IconData icon;

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../core/controllers/project_controller.dart';
 import '../../core/models/music_project.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/widgets/glass_card.dart';
-import '../../core/widgets/midnight_header.dart';
 
 class BeatsPage extends StatefulWidget {
   final MusicProject? project;
@@ -93,6 +91,7 @@ class _BeatsPageState extends State<BeatsPage> {
     final hasProject = widget.project != null;
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -100,110 +99,167 @@ class _BeatsPageState extends State<BeatsPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.background,
-              AppColors.midnightBlue,
-              AppColors.deepPurple,
+              Color(0xFF020203),
+              Color(0xFF050812),
+              Color(0xFF07040D),
+              Color(0xFF000000),
             ],
           ),
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.all(26),
             child: ListView(
               children: [
-                const MidnightHeader(
-                  title: 'Beats',
-                  subtitle: 'Genre, BPM, Stimmung und Sound formen.',
-                  icon: Icons.music_note_rounded,
-                  showBackButton: true,
-                ),
-
-                const SizedBox(height: 24),
+                const _BeatsHeader(),
+                const SizedBox(height: 28),
 
                 if (!hasProject)
-                  const GlassCard(
-                    child: Text(
-                      'Hinweis: Öffne Beats am besten über ein Projekt, damit deine Beat-Daten gespeichert werden können.',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
+                  const _StudioHint(
+                    text:
+                        'Hinweis: Öffne Beats am besten über ein Projekt, damit deine Beat-Daten gespeichert werden können.',
                   ),
 
-                if (!hasProject) const SizedBox(height: 18),
+                if (!hasProject) const SizedBox(height: 22),
 
-                GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Beat Einstellungen',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _InputField(
+                const _SilverMetalText(
+                  'BEAT INFORMATION',
+                  fontSize: 16,
+                ),
+
+                const SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _InputField(
                         label: 'Genre',
                         hint: 'Dark Pop / Hip-Hop',
                         controller: beatGenreController,
                       ),
-                      const SizedBox(height: 16),
-                      _InputField(
+                    ),
+                    const SizedBox(width: 40),
+                    Expanded(
+                      child: _InputField(
                         label: 'BPM',
                         hint: '92',
                         controller: beatBpmController,
                         keyboardType: TextInputType.number,
                       ),
-                      const SizedBox(height: 16),
-                      _InputField(
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _InputField(
                         label: 'Stimmung',
                         hint: 'Dunkel · emotional',
                         controller: beatMoodController,
                       ),
-                      const SizedBox(height: 16),
-                      _InputField(
+                    ),
+                    const SizedBox(width: 40),
+                    Expanded(
+                      child: _InputField(
                         label: 'Instrumente',
                         hint: 'Piano · 808 · Pads',
                         controller: beatInstrumentsController,
                       ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                const _WavePreviewCard(),
-
-                const SizedBox(height: 18),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: saveBeatData,
-                    icon: const Icon(Icons.save_rounded),
-                    label: const Text('Beat im Projekt speichern'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.gold,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
                     ),
-                  ),
+                  ],
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 34),
 
-                const _BeatListCard(),
+                const _SilverMetalText(
+                  'BEAT PREVIEW',
+                  fontSize: 16,
+                ),
+
+                const SizedBox(height: 16),
+
+                const _BeatPreviewInfo(),
+
+                const SizedBox(height: 30),
+
+                _StudioActionButton(
+                  icon: Icons.auto_awesome_rounded,
+                  label: 'Beat generieren',
+                  onTap: () {},
+                ),
+
+                const SizedBox(height: 14),
+
+                _StudioActionButton(
+                  icon: Icons.save_rounded,
+                  label: 'Beat im Projekt speichern',
+                  onTap: saveBeatData,
+                ),
+
+                const SizedBox(height: 34),
+
+                const _SilverMetalText(
+                  'DEMO BEATS',
+                  fontSize: 16,
+                ),
+
+                const SizedBox(height: 16),
+
+                const _BeatItem(
+                  title: 'Midnight Pulse',
+                  bpm: '92 BPM',
+                  tag: 'Dark Pop',
+                ),
+                const _BeatItem(
+                  title: 'Golden Shadows',
+                  bpm: '84 BPM',
+                  tag: 'Emotional',
+                ),
+                const _BeatItem(
+                  title: 'Neon Heartbeat',
+                  bpm: '104 BPM',
+                  tag: 'Synth Pop',
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _BeatsHeader extends StatelessWidget {
+  const _BeatsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const _LogoStyleIcon(icon: Icons.graphic_eq_rounded),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            _GoldMetalText(
+              'BEATS',
+              fontSize: 28,
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Genre, BPM, Stimmung und Sound formen',
+              style: TextStyle(
+                color: Color(0xFF9EA8C8),
+                fontSize: 12,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -223,141 +279,114 @@ class _InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: AppColors.gold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 14,
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(
-              color: AppColors.textSecondary,
-            ),
-            filled: true,
-            fillColor: Colors.black.withOpacity(0.22),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 13,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: AppColors.silver.withOpacity(0.18),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: AppColors.silver.withOpacity(0.18),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: AppColors.gold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _WavePreviewCard extends StatelessWidget {
-  const _WavePreviewCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Beat Vorschau',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            height: 70,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: List.generate(
-                24,
-                (index) {
-                  final height = 18 + ((index * 17) % 48).toDouble();
-
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2),
-                      child: Container(
-                        height: height,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          gradient: const LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              AppColors.neonPurple,
-                              AppColors.gold,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(
+        color: Color(0xFFE8EDF7),
+        fontSize: 14,
+      ),
+      decoration: _studioInputDecoration(
+        label: label,
+        hint: hint,
       ),
     );
   }
 }
 
-class _BeatListCard extends StatelessWidget {
-  const _BeatListCard();
+InputDecoration _studioInputDecoration({
+  String? label,
+  required String hint,
+}) {
+  return InputDecoration(
+    labelText: label,
+    labelStyle: const TextStyle(
+      color: Color(0xFFD9E5FF),
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.6,
+    ),
+    hintText: hint,
+    hintStyle: const TextStyle(
+      color: Color(0xFF7E86A8),
+    ),
+    filled: true,
+    fillColor: Colors.transparent,
+    contentPadding: const EdgeInsets.symmetric(
+      horizontal: 0,
+      vertical: 14,
+    ),
+    enabledBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x448A78FF),
+      ),
+    ),
+    focusedBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0xFFE8EDF7),
+        width: 1.4,
+      ),
+    ),
+  );
+}
+
+class _StudioActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _StudioActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'Demo Beats',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            _LogoStyleIcon(icon: icon),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _SilverMetalText(
+                label,
+                fontSize: 14,
+              ),
             ),
-          ),
-          SizedBox(height: 14),
-          _BeatItem(title: 'Midnight Pulse', bpm: '92 BPM', tag: 'Dark Pop'),
-          SizedBox(height: 10),
-          _BeatItem(title: 'Golden Shadows', bpm: '84 BPM', tag: 'Emotional'),
-          SizedBox(height: 10),
-          _BeatItem(title: 'Neon Heartbeat', bpm: '104 BPM', tag: 'Synth Pop'),
-        ],
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 12,
+              color: Color(0xFF7E86A8),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StudioHint extends StatelessWidget {
+  final String text;
+
+  const _StudioHint({
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFF9EA8C8),
+          fontSize: 13,
+          height: 1.4,
+        ),
       ),
     );
   }
@@ -376,34 +405,274 @@ class _BeatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.black.withOpacity(0.22),
-        border: Border.all(
-          color: AppColors.gold.withOpacity(0.18),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          const Icon(
-            Icons.music_note_rounded,
-            color: AppColors.gold,
+          const _LogoStyleIcon(icon: Icons.music_note_rounded),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SilverMetalText(title, fontSize: 13),
+                const SizedBox(height: 4),
+                Text(
+                  '$bpm · $tag',
+                  style: const TextStyle(
+                    color: Color(0xFF9EA8C8),
+                    fontSize: 12,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(width: 12),
+          const Icon(
+            Icons.play_arrow_rounded,
+            size: 18,
+            color: Color(0xFFE8EDF7),
+          ),
+        ],
+      ),
+    );
+  }
+}
+class _BeatPreviewInfo extends StatelessWidget {
+  const _BeatPreviewInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          _LogoStyleIcon(icon: Icons.graphic_eq_rounded),
+          SizedBox(width: 14),
           Expanded(
             child: Text(
-              '$title • $bpm • $tag',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              'Beat Preview · 92 BPM · Dark Pop · Piano · 808 · Pads',
+              style: TextStyle(
+                color: Color(0xFF9EA8C8),
+                fontSize: 13,
+                letterSpacing: 0.4,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BeatWavePainter extends CustomPainter {
+  const _BeatWavePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerY = size.height / 2;
+
+    final glowPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 14
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18)
+      ..shader = const LinearGradient(
+        colors: [
+          Color(0xFF63E7FF),
+          Color(0xFFE8EDF7),
+          Color(0xFF8A78FF),
+          Color(0xFFFF7CE6),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final mainPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..shader = const LinearGradient(
+        colors: [
+          Color(0xFF63E7FF),
+          Color(0xFFE8EDF7),
+          Color(0xFF8A78FF),
+          Color(0xFFFF7CE6),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final path = Path();
+
+    for (double x = 0; x <= size.width; x += 7) {
+      final p = x / size.width;
+      final y = centerY +
+          (p < 0.5 ? 1 : -1) *
+              (size.height * 0.18) *
+              (1 - (p - 0.5).abs()) +
+          (p * 30).sinLike() * size.height * 0.12;
+
+      if (x == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    canvas.drawPath(path, glowPaint);
+    canvas.drawPath(path, mainPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+extension _BeatMath on double {
+  double sinLike() {
+    final x = this;
+    return (x % 6.28) < 3.14 ? 0.65 : -0.65;
+  }
+}
+
+class _LogoStyleIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _LogoStyleIcon({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF63E7FF).withAlpha(45),
+                blurRadius: 18,
+              ),
+              BoxShadow(
+                color: const Color(0xFFFF7CE6).withAlpha(35),
+                blurRadius: 18,
+              ),
+            ],
+          ),
+        ),
+        ShaderMask(
+          shaderCallback: (bounds) {
+            return const LinearGradient(
+              colors: [
+                Color(0xFF63E7FF),
+                Color(0xFFE8EDF7),
+                Color(0xFF8A78FF),
+                Color(0xFFFF7CE6),
+              ],
+            ).createShader(bounds);
+          },
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GoldMetalText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+
+  const _GoldMetalText(
+    this.text, {
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) {
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFFFF),
+            Color(0xFFFFF2B6),
+            Color(0xFFFFC64B),
+            Color(0xFF8C4F09),
+            Color(0xFFE8EDF7),
+          ],
+          stops: [0.0, 0.18, 0.45, 0.72, 1.0],
+        ).createShader(bounds);
+      },
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.4,
+          shadows: const [
+            Shadow(
+              color: Color(0xBBFFB000),
+              blurRadius: 18,
+            ),
+            Shadow(
+              color: Color(0x88000000),
+              blurRadius: 8,
+              offset: Offset(2, 3),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SilverMetalText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+
+  const _SilverMetalText(
+    this.text, {
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) {
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFFFF),
+            Color(0xFFD9E5FF),
+            Color(0xFFB8C4E8),
+            Color(0xFF8A78FF),
+          ],
+        ).createShader(bounds);
+      },
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+          shadows: const [
+            Shadow(
+              color: Color(0x668A78FF),
+              blurRadius: 12,
+            ),
+            Shadow(
+              color: Color(0x33FFFFFF),
+              blurRadius: 4,
+              offset: Offset(-1, -1),
+            ),
+          ],
+        ),
       ),
     );
   }
